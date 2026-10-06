@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include <boost/graph/adjacency_list.hpp>
@@ -35,7 +36,9 @@ std::vector<std::size_t> sortedNodeTags()
     return tags;
 }
 
-// Connects every pair of nodes sharing an element.
+// Connects every pair of nodes sharing an element. Neighbouring elements share
+// edges: duplicates are removed so that vertex degrees, which drive the
+// Cuthill-McKee ordering, count distinct neighbours.
 Graph buildNodeGraph(const std::vector<std::size_t> &nodeTags)
 {
     // gmsh tags are not necessarily contiguous (msh 4.x)
@@ -44,7 +47,7 @@ Graph buildNodeGraph(const std::vector<std::size_t> &nodeTags)
     for (std::size_t i = 0; i < nodeTags.size(); ++i)
         tagToIndex[nodeTags[i]] = i;
 
-    Graph graph(nodeTags.size());
+    std::vector<std::pair<std::size_t, std::size_t>> edges;
 
     std::vector<int> elementTypes;
     std::vector<std::vector<std::size_t>> elementTags, elementNodeTags;
@@ -71,11 +74,18 @@ Graph buildNodeGraph(const std::vector<std::size_t> &nodeTags)
             for (const auto a : nodes)
                 for (const auto b : nodes)
                     if (b > a)
-                        boost::add_edge(a, b, graph);
+                        edges.emplace_back(a, b);
         }
     }
     std::cout << "Elements : " << numElements << '\n';
-    return graph;
+
+    const std::size_t numPairs = edges.size();
+    std::sort(edges.begin(), edges.end());
+    edges.erase(std::unique(edges.begin(), edges.end()), edges.end());
+    std::cout << "Edges : " << edges.size() << " (" << numPairs - edges.size()
+              << " duplicates removed)\n";
+
+    return Graph(edges.begin(), edges.end(), nodeTags.size());
 }
 
 }  // namespace
