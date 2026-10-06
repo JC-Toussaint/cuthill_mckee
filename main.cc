@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -93,10 +94,25 @@ void run(const cmk::fs::path &file)
 
     cmk::applyRenumbering(renumbering);
 
+    // Write to a temporary file first so that the input is left untouched if
+    // writing fails. gmsh picks the output format from the extension: an msh
+    // file gets a .msh temporary whatever its own name (e.g. mesh.msh.orig).
+    auto temporary = file;
+    temporary += ".tmp";
+    temporary += format ? cmk::fs::path(".msh") : file.extension();
+    try {
+        cmk::writeMesh(temporary);
+    }
+    catch (...) {
+        std::error_code ignored;
+        cmk::fs::remove(temporary, ignored);
+        throw;
+    }
+
     auto backup = file;
     backup += ".orig";
     cmk::fs::rename(file, backup);
-    cmk::writeMesh(file);
+    cmk::fs::rename(temporary, file);
     std::cout << "Wrote " << file.string() << " (original: " << backup.string() << ")\n";
 }
 
