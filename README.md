@@ -23,7 +23,8 @@ make GMSH_DIR=/opt/gmsh   # gmsh SDK installed elsewhere
 ```
 
 `mesh.msh` is replaced by the renumbered mesh; the original file is kept as
-`mesh.msh.orig`. The bandwidth before and after renumbering is printed:
+`mesh.msh.orig`. `cmk` refuses to run if `mesh.msh.orig` already exists, so
+that a backup is never overwritten. The bandwidth before and after renumbering is printed:
 
 ```
 Format msh 4.1 ascii

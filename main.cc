@@ -74,6 +74,13 @@ void run(const cmk::fs::path &file)
     if (!cmk::fs::is_regular_file(file))
         throw std::runtime_error("cannot read file " + file.string());
 
+    // Never overwrite a backup: it may hold the only copy of the original mesh.
+    auto backup = file;
+    backup += ".orig";
+    if (cmk::fs::exists(backup))
+        throw std::runtime_error("backup " + backup.string() + " already exists, "
+                                 "remove or rename it first");
+
     cmk::GmshSession session;
     gmsh::option::setNumber("General.Terminal", 1);
 
@@ -107,8 +114,6 @@ void run(const cmk::fs::path &file)
         throw;
     }
 
-    auto backup = file;
-    backup += ".orig";
     cmk::fs::rename(file, backup);
     cmk::fs::rename(temporary, file);
     std::cout << "Wrote " << file.string() << " (original: " << backup.string() << ")\n";
