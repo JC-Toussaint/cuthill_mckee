@@ -1,0 +1,7 @@
+# build products
+*.o
+cmk
+
+# backups written by cmk
+*.orig
+*~
