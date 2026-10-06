@@ -5,3 +5,6 @@ cmk
 # backups written by cmk
 *.orig
 *~
+
+# CMake build directory
+build/

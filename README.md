@@ -11,6 +11,16 @@ written back in the same version and encoding as the input.
 
 Requirements: a C++17 compiler, Boost (Graph), gmsh SDK (`gmsh.h`, `libgmsh`).
 
+With CMake:
+
+```sh
+cmake -S . -B build                         # add -DGMSH_DIR=/opt/gmsh if needed
+cmake --build build                         # produces build/cmk
+cmake --install build --prefix ~/.local     # optional
+```
+
+or with make:
+
 ```sh
 make                      # gmsh installed under /usr
 make GMSH_DIR=/opt/gmsh   # gmsh SDK installed elsewhere
