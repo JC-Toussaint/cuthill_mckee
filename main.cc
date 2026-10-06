@@ -69,17 +69,18 @@ void keepElementsOutsidePhysicalGroups()
     }
 }
 
-void run(const cmk::fs::path &file)
+void run(const cmk::fs::path &file, bool force)
 {
     if (!cmk::fs::is_regular_file(file))
         throw std::runtime_error("cannot read file " + file.string());
 
-    // Never overwrite a backup: it may hold the only copy of the original mesh.
+    // Never overwrite a backup unless asked to: it may hold the only copy of
+    // the original mesh.
     auto backup = file;
     backup += ".orig";
-    if (cmk::fs::exists(backup))
+    if (!force && cmk::fs::exists(backup))
         throw std::runtime_error("backup " + backup.string() + " already exists, "
-                                 "remove or rename it first");
+                                 "remove or rename it first, or use -f");
 
     cmk::GmshSession session;
     gmsh::option::setNumber("General.Terminal", 1);
@@ -123,13 +124,16 @@ void run(const cmk::fs::path &file)
 
 int main(int argc, char **argv)
 {
-    if (argc != 2) {
-        std::cerr << "usage: cmk file\n";
+    const std::vector<std::string> args(argv + 1, argv + argc);
+    const bool force = args.size() == 2 && args[0] == "-f";
+    if (args.size() != (force ? 2u : 1u) || args.back() == "-f") {
+        std::cerr << "usage: cmk [-f] file\n"
+                     "  -f  overwrite file.orig if it already exists\n";
         return EXIT_FAILURE;
     }
 
     try {
-        run(argv[1]);
+        run(args.back(), force);
     }
     catch (const std::exception &e) {
         std::cerr << "cmk: " << e.what() << '\n';
