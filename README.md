@@ -45,3 +45,14 @@ Wrote mesh.msh (original: mesh.msh.orig)
   renumbers the nodes entity by entity, which would undo the renumbering.
   As in gmsh, elements are numbered 1..N and an element belonging to several
   physical groups is written once per group.
+
+## License
+
+cmk is free software: you can redistribute it and/or modify it under the terms
+of the GNU General Public License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License (`COPYING`) for more
+details.
