@@ -95,11 +95,9 @@ void run(const cmk::fs::path &file)
     cmk::applyRenumbering(renumbering);
 
     // Write to a temporary file first so that the input is left untouched if
-    // writing fails. gmsh picks the output format from the extension: an msh
-    // file gets a .msh temporary whatever its own name (e.g. mesh.msh.orig).
+    // writing fails; it keeps the extension, from which gmsh picks the format.
     auto temporary = file;
-    temporary += ".tmp";
-    temporary += format ? cmk::fs::path(".msh") : file.extension();
+    temporary.replace_extension(".tmp" + file.extension().string());
     try {
         cmk::writeMesh(temporary);
     }
